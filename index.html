@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Aportes Quincenales</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#2f6fed">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Aportes">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+  <!-- Indicador de carga -->
+  <div id="cargando" class="cargando oculto">Cargando...</div>
+
+  <!-- Mensajes de éxito / error -->
+  <div id="mensajes" class="contenedor-mensajes"></div>
+
+  <header class="encabezado">
+    <h1>Control de Aportes Quincenales</h1>
+  </header>
+
+  <main class="contenedor-principal">
+
+    <!-- ================= RESUMEN ================= -->
+    <section class="seccion" id="seccionResumen">
+      <h2>Resumen del mes</h2>
+      <div class="tarjetas">
+        <div class="tarjeta">
+          <span class="tarjeta-titulo">Integrantes</span>
+          <span class="tarjeta-valor" id="totalIntegrantes">0</span>
+        </div>
+        <div class="tarjeta tarjeta-exito">
+          <span class="tarjeta-titulo">Pagaron</span>
+          <span class="tarjeta-valor" id="totalPagaron">0</span>
+        </div>
+        <div class="tarjeta tarjeta-pendiente">
+          <span class="tarjeta-titulo">Pendientes</span>
+          <span class="tarjeta-valor" id="totalPendientes">0</span>
+        </div>
+        <div class="tarjeta tarjeta-dinero">
+          <span class="tarjeta-titulo">Recaudado</span>
+          <span class="tarjeta-valor" id="totalRecaudado">$0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= REGISTRO DE PAGO ================= -->
+    <section class="seccion" id="seccionRegistro">
+      <h2>Registrar pago</h2>
+      <form id="formPago" class="formulario">
+        <div class="campo">
+          <label for="selectIntegrante">Integrante</label>
+          <select id="selectIntegrante" required></select>
+        </div>
+        <div class="campo">
+          <label for="inputFechaPago">Fecha del pago</label>
+          <input type="date" id="inputFechaPago" required>
+        </div>
+        <div class="campo">
+          <label for="selectQuincena">Quincena</label>
+          <select id="selectQuincena" required>
+            <option value="">Seleccione...</option>
+            <option value="15">15</option>
+            <option value="30">30</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="inputValorAporte">Valor del aporte</label>
+          <input type="number" id="inputValorAporte" min="1" step="1" required>
+        </div>
+        <div class="campo campo-boton">
+          <button type="submit" class="btn btn-primario">Registrar pago</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ================= FILTROS Y TABLA PRINCIPAL ================= -->
+    <section class="seccion" id="seccionTabla">
+      <h2>Estado de pagos</h2>
+      <div class="filtros">
+        <button id="btnMesAnterior" class="btn btn-secundario">&laquo; Anterior</button>
+        <select id="selectMes"></select>
+        <select id="selectAnio"></select>
+        <button id="btnMesSiguiente" class="btn btn-secundario">Siguiente &raquo;</button>
+      </div>
+      <div class="tabla-scroll">
+        <table class="tabla">
+          <thead>
+            <tr id="encabezadoTabla"></tr>
+          </thead>
+          <tbody id="cuerpoTabla"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= HISTORIAL ================= -->
+    <section class="seccion" id="seccionHistorial">
+      <h2>Historial de pagos</h2>
+      <div class="filtros filtros-historial">
+        <select id="filtroHistIntegrante"></select>
+        <select id="filtroHistMes"></select>
+        <select id="filtroHistAnio"></select>
+        <select id="filtroHistQuincena"></select>
+      </div>
+      <div class="tabla-scroll">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Integrante</th>
+              <th>Fecha</th>
+              <th>Quincena</th>
+              <th>Mes / Año</th>
+              <th>Valor</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpoHistorial"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= MODAL EDITAR ================= -->
+  <div id="modalEditar" class="modal oculto">
+    <div class="modal-contenido">
+      <h3>Editar pago</h3>
+      <form id="formEditar">
+        <div class="campo">
+          <label>Integrante</label>
+          <input type="text" id="editarIntegrante" disabled>
+        </div>
+        <div class="campo">
+          <label for="editarFecha">Fecha del pago</label>
+          <input type="date" id="editarFecha" required>
+        </div>
+        <div class="campo">
+          <label for="editarQuincena">Quincena</label>
+          <select id="editarQuincena" required>
+            <option value="15">15</option>
+            <option value="30">30</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="editarValor">Valor</label>
+          <input type="number" id="editarValor" min="0" required>
+        </div>
+        <div class="modal-acciones">
+          <button type="button" id="btnCancelarEditar" class="btn btn-secundario">Cancelar</button>
+          <button type="submit" class="btn btn-primario">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL ELIMINAR ================= -->
+  <div id="modalEliminar" class="modal oculto">
+    <div class="modal-contenido">
+      <h3>¿Está seguro de que desea eliminar este pago?</h3>
+      <p>Esta acción no se puede deshacer.</p>
+      <div class="modal-acciones">
+        <button id="btnCancelarEliminar" class="btn btn-secundario">Cancelar</button>
+        <button id="btnConfirmarEliminar" class="btn btn-peligro">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
